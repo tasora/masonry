@@ -225,7 +225,9 @@ void load_brick_file(ChSystem& mphysicalSystem, const char* filename,
 
             std::shared_ptr<ChBodyAuxRef> my_body (new ChBodyAuxRef);
 
-            my_body->GetCollisionModel()->Clear();
+            mphysicalSystem.Add(my_body);
+
+            //my_body->GetCollisionModel()->Clear();
 
             utils::CompositeInertia composite_inertia;
 
@@ -260,7 +262,8 @@ void load_brick_file(ChSystem& mphysicalSystem, const char* filename,
                         points_reduced[i] = vshape->GetMesh()->getCoordsVertices()[i];
                     }
                     auto cshape = chrono_types::make_shared<ChCollisionShapeConvexHull>(my_materials[ih], points_reduced);
-                    //my_body->GetCollisionModel()->AddShape(my_materials[ih], points_reduced);
+                    my_body->AddCollisionShape(cshape);
+                    //my_body->SetCollide(true);
                 }
             }
 
@@ -289,7 +292,7 @@ void load_brick_file(ChSystem& mphysicalSystem, const char* filename,
             my_body->Accumulate_force(my_force,VNULL,true); // add force to COG of body.
             my_body->SetFrame_REF_to_abs(ChFrame<>(my_reference));
 
-            mphysicalSystem.Add(my_body);
+            
 
             // Fix to ground 
             if(my_fixed) {
@@ -772,6 +775,9 @@ int main(int argc, char* argv[]) {
 
     // Create a ChronoENGINE physical system
     ChSystemNSC mphysicalSystem;
+    
+    // Set the collision engine
+    mphysicalSystem.SetCollisionSystemType(ChCollisionSystem::Type::BULLET);
 
     // Here set the inward-outward margins for collision shapes:
     ChCollisionModel::SetDefaultSuggestedEnvelope(0.01);
@@ -812,7 +818,7 @@ int main(int argc, char* argv[]) {
 
     // Create all the rigid bodies loading their shapes from disk
     try {
-        load_brick_file (mphysicalSystem, filename, mmaterial, my_body_map, (file_contacts == ""));
+        load_brick_file(mphysicalSystem, filename, mmaterial, my_body_map, (file_contacts == ""));
     }
     catch (ChException my_load_error) {
         GetLog()<< my_load_error.what();
