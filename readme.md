@@ -37,7 +37,7 @@ where
 - **T_max [t]**  tells when the simulator ends the simulation end exits. Default: 30 seconds.
 - **save_each [n]** tells that the simulator will output on the disk a triplet of result files per each *n* timesteps: ex. *save_each 1*  will save  bodies00001.txt  bodies00002.txt ... contacts00001.txt contacts00002.txt ... springs00001.txt springs00002.txt  etc. Files will go into the working directory. Use 0 to disable saving. Default: save each 10 steps. 
 - **snapshot_each [n]** tells that the simulator will save a snapshot of the 3D visualization each *n* timesteps.Snaphsots will go into the /video_capture directory. Default = 0 (do not save).
-- **density [d]** defines the density of the blocks (kg/m^3). Default 1800 kg/m^3.
+- **density [density]** defines the density of the blocks (kg/m^3). Default 1800 kg/m^3.
 - **friction [f]** defines the friction coefficients for the blocks. Default 0.4.
 - **compliance [c]** defines the compliance (m/N), inverse of stiffness, of contact points. Default 2e-8f m/N.
 - **damping [r]** defines the Rayleigh damping in contacts. Default 0.2.
