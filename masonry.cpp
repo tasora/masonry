@@ -563,12 +563,12 @@ void load_motion(std::shared_ptr<ChFunctionInterp> mrecorder, std::string filena
 {
     std::cout  << "Parsing " << filename_pos << " motion file... \n";
 
-	ChStreamInAsciiFile mstream(filename_pos.c_str());
+    std::ifstream  mstream(filename_pos.c_str());
 	
 	mrecorder->Reset();
 
 	double time = 0;
-	while(!mstream.End_of_stream())
+	while(!mstream.eof())
 	{
 		double value = 0;
 		try
@@ -599,7 +599,7 @@ void load_motion(std::shared_ptr<ChFunctionInterp> mrecorder, std::string filena
 class _contact_reporter_class : public  ChContactContainer::ReportContactCallback
 {
     public:
-    ChStreamOutAsciiFile* mfile; // the file to save data into
+    std::ofstream* mfile; // the file to save data into
 
 	virtual bool OnReportContact(
 		const ChVector3d& pA,             ///< contact pA
@@ -939,7 +939,7 @@ int main(int argc, char* argv[]) {
             std::shared_ptr<_contact_reporter_class> my_contact_rep(new _contact_reporter_class);
 
             //_contact_reporter_class my_contact_rep;
-            ChStreamOutAsciiFile result_contacts(contactfilename);
+            std::ofstream result_contacts(contactfilename);
             my_contact_rep->mfile = &result_contacts;
             mphysicalSystem.GetContactContainer()->ReportAllContacts(my_contact_rep);
 			if (precomputed_contact_container)
@@ -948,7 +948,7 @@ int main(int argc, char* argv[]) {
             // b) Save rigid body positions and rotations
             char bodyfilename[200];
             sprintf(bodyfilename, "output/%s%05d%s", "bodies", mphysicalSystem.GetNumSteps(), ".txt");  // ex: bodies00020.tx
-            ChStreamOutAsciiFile result_bodies(bodyfilename);
+            std::ofstream result_bodies(bodyfilename);
 			auto mbodies = mphysicalSystem.GetBodies().begin();
             while (mbodies != mphysicalSystem.GetBodies().end()) {
                 result_bodies   << (*mbodies)->GetTag()  << ", " 
@@ -965,13 +965,13 @@ int main(int argc, char* argv[]) {
 
             // b) Save spring reactions
             char springfilename[200];
-            sprintf(springfilename, "output/%s%05d%s", "springs", mphysicalSystem.GetStepcount(), ".txt");  // ex: springs00020.tx
-            ChStreamOutAsciiFile result_springs(springfilename);
+            sprintf(springfilename, "output/%s%05d%s", "springs", mphysicalSystem.GetNumSteps(), ".txt");  // ex: springs00020.tx
+            std::ofstream result_springs(springfilename);
             auto mlink = mphysicalSystem.GetLinks().begin();
             while (mlink != mphysicalSystem.GetLinks().end()) {
                 if (auto mspring = std::dynamic_pointer_cast<ChLinkTSDA>((*mlink)))
                 result_springs  << mspring->GetTag()  << ", " 
-                                << mspring->GetReaction1()  << ", "
+                                << mspring->GetReaction1().force.Length()  << ", "
                                 << mspring->GetPoint1Abs().x() << ", "
                                 << mspring->GetPoint1Abs().y() << ", "
                                 << mspring->GetPoint1Abs().z() << ", "
